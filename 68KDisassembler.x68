@@ -33,6 +33,9 @@ ME		LEA     MEM_END_MSG,A1      * Load memory end message
 		
 		BRA		CLOSE
 
+* -----------------------------------
+* 			PARSE ADDRESS
+* -----------------------------------
 ADDR_PARSE	CMP.B 	#0,D1		* Check for empty input
 			BEQ		BAD_INPUT	* Handle bad input
 			CMP.B 	#8,D1		* Check for too many values
@@ -84,10 +87,44 @@ CLOSE_MSSG		DC.B 	'Thanks for using our disassembler!',0
 START_ADDR		DS.L 	0
 END_ADDR		DS.L 	0
 
+* -----------------------------------
+* 			OPCODE MESSAGES
+* -----------------------------------
+
+NOP_M			DC.B 	'NOP',0
+MOVE_M 			DC.B    'MOVE',0
+MOVEQ_M			DC.B 	'MOVEQ',0
+MOVEM_M			DC.B 	'MOVEM',0
+MOVEA_M			DC.B 	'MOVEA',0
+ADD_M 			DC.B 	'ADD',0
+ADDA_M 			DC.B 	'ADDA,0'
+ADDI_M			DC.B  	'ADDI',0
+SUB_M			DC.B 	'SUB',0
+MULS_M			DC.B 	'MULS',0
+DIVU_M			DC.B 	'DIVU',0
+LEA_M			DC.B 	'LEA',0
+CLR_M			DC.B 	'CLR',0
+AND_M			DC.B 	'AND',0
+OR_M			DC.B 	'OR',0
+LSL_M			DC.B 	'LSL',0
+LSR_M			DC.B 	'LSR',0
+ASR_M			DC.B  	'ASR',0
+ASL_M			DC.B 	'ASL',0
+ROL_M			DC.B 	'ROL',0
+ROR_M			DC.B 	'ROR',0
+CMP_M			DC.B 	'CMP',0
+BCC_M			DC.B 	'BCC',0
+BGT_M			DC.B 	'BGT',0
+BLE_M			DC.B 	'BLE',0
+JSR_M			DC.B 	'JSR',0
+RTS_M			DC.B 	'RTS',0
+
+
 CLOSE		LEA 	CLOSE_MSSG,A1
 			MOVE.B 	#13,D0
 			TRAP 	#15	
 			END    $1000        
+
 
 
 
