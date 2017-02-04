@@ -118,7 +118,9 @@ BGT_M			DC.B 	'BGT',0
 BLE_M			DC.B 	'BLE',0
 JSR_M			DC.B 	'JSR',0
 RTS_M			DC.B 	'RTS',0
-
+B_M 			DC.B 	'.B',0
+W_M 			DC.B 	'.W',0
+L_M 			DC.B 	'.L',0
 
 CLOSE		LEA 	CLOSE_MSSG,A1
 			MOVE.B 	#13,D0
