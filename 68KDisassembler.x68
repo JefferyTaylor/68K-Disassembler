@@ -8,11 +8,19 @@
 CR      EQU     $0D
 LF      EQU     $0A
 
-START	ORG	$1000                  
+START	ORG	$1000   
+
+* ----------------------------------------------------------------
+		MOVE.L 	#1,D6				* Test command for disassembly 
+* ----------------------------------------------------------------
+
 		LEA     WELCOME_MSG,A1		* Load welcome message	
 		MOVE.B  #13, D0				* Trap task
 		TRAP    #15       			* Display intro message
 
+* -------------------------------------------
+* 			GET ADDRESSES FROM USER
+* -------------------------------------------
 MS		LEA     MEM_START_MSG,A1	* Load memory start message	
 		MOVE.B  #14, D0				* Trap task
 		TRAP    #15					* Display memory start message
@@ -30,12 +38,15 @@ ME		LEA     MEM_END_MSG,A1      * Load memory end message
 		TRAP    #15 				* Get user input
 		JSR		ADDR_PARSE			* Parse address from user's string input
 		MOVE.L 	D1,A6				* Move the parsed addr to A1
+
+
+		BRA		MOVE_SUB
 		
 		BRA		CLOSE
 
-* -----------------------------------
+* -------------------------------------------
 * 			PARSE ADDRESS
-* -----------------------------------
+* -------------------------------------------
 ADDR_PARSE	CMP.B 	#0,D1		* Check for empty input
 			BEQ		BAD_INPUT	* Handle bad input
 			CMP.B 	#8,D1		* Check for too many values
@@ -76,7 +87,51 @@ STORE_HEX	ASL.L 	#4,D1
 			BRA 	CHAR_PARSE
 
 PARSE_DONE	RTS	
-	
+
+* -------------------------------------------
+* 			PARSE OPCODE
+* -------------------------------------------
+GET_OPCODE	MOVE.L 	(A5),D1
+			BTST.L  #32,D1
+			 
+
+
+* -------------------------------------------
+*			MOVE Subroutine 
+* -------------------------------------------
+MOVE_SUB	LEA 	MOVE_M,A1	* Load 'MOVE'
+			MOVE.B 	#14,D0 		* Trap task
+			TRAP 	#15 		* Display 'MOVE'
+
+			MOVE.L  (A5),D1     * D1 holds hexidecimal machine code to be disassembled
+			ASL.L   #2,D1       * Take off first two bits of opcode word
+
+			MOVE.L 	D1,D2 		* Copy Opcode hex to D2 for further processing
+								                    * Size will be found using D1
+			JSR 	GET_SIZE
+			BRA		CLOSE 
+
+GET_SIZE	LSR.L 	#8,D1
+			LSR.L	#8,D1
+			LSR.L	#8,D1
+			LSR.L	#6,D1
+			CMP.B 	#1,D1		* Check if size bits == 01
+			BNE		WORD
+			LEA 	B_M,A1
+			MOVE.B 	#14,D0 		* Trap task
+			TRAP 	#15 		* Display '.B'
+			RTS
+WORD 		CMP.B 	#3,D1		* Check if size bits == 11
+			BNE		LONG
+			LEA 	W_M,A1
+			MOVE.B 	#14,D0 		* Trap task
+			TRAP 	#15 		* Display '.W'
+			RTS
+LONG		LEA 	L_M,A1
+			MOVE.B 	#14,D0 		* Trap task
+			TRAP 	#15 		* Display '.L'
+			RTS
+
 
 
 WELCOME_MSG     DC.B    'Welcome to the Some Disassembly Required 68K Disassembler',CR,LF,0
@@ -122,10 +177,13 @@ B_M 			DC.B 	'.B',0
 W_M 			DC.B 	'.W',0
 L_M 			DC.B 	'.L',0
 
+
 CLOSE		LEA 	CLOSE_MSSG,A1
 			MOVE.B 	#13,D0
 			TRAP 	#15	
 			END    $1000        
+
+
 
 
 
